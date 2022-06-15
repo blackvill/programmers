@@ -1,0 +1,27 @@
+class Solution {
+    public int solution(int num) {
+        // 오버플로 방지
+        long n = num;
+        int answer = 0;
+        
+        while (n != 1) {
+            // 짝수의 경우
+            if(n % 2 == 0) {
+                // 2로 나누기
+                n /= 2;
+            } else {
+                // 아니라면 3 곱하고 1더하기
+                n = 3 * n + 1;
+            }
+            // 횟수 증가
+            answer++;
+            
+            // 500번을 넘어가면
+            if (answer == 500) {
+                answer = -1;
+                break;
+            }
+        }
+        return answer;
+    }
+}
