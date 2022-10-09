@@ -1,0 +1,79 @@
+class Solution {
+    public int solution(int alp, int cop, int[][] problems) {
+        // 알고력, 코딩력 목표 수치
+        int goal_alp = 0;
+        int goal_cop = 0;
+        
+        // 모든 문제에서 가장 큰 값 = 목표 수치
+        for (int i = 0; i < problems.length; i++) {
+            goal_alp = Math.max(problems[i][0], goal_alp);
+            goal_cop = Math.max(problems[i][1], goal_cop);
+        }
+        
+        // 이미 알고력과 코딩력이 목표 이상이면 모든 문제 풀이 가능
+        if (goal_alp <= alp && goal_cop <= cop) {
+            return 0;
+        }
+        
+        // 부족하면 초기값을 목표치로 변경
+        if (alp >= goal_alp) {
+            alp = goal_alp;
+        }
+        if (cop >= goal_cop) {
+            cop = goal_cop;
+        }
+        
+        int[][] dp = new int[goal_alp + 2][goal_cop + 2];
+        
+        for (int i = alp; i <= goal_alp; i++) {
+            for (int j = cop; j <= goal_cop; j++) {
+                dp[i][j] = Integer.MAX_VALUE;
+            }
+        }
+        
+        dp[alp][cop] = 0;
+        
+        for (int i = alp; i <= goal_alp; i++) {
+             for (int j = cop; j <= goal_cop; j++) {
+                 // 알고력 1 높이기
+                 dp[i + 1][j] = Math.min(dp[i + 1][j], dp[i][j] + 1);
+                 // 코딩력 1 높이기
+                 dp[i][j + 1] = Math.min(dp[i][j + 1], dp[i][j] + 1);
+                 
+                 for (int[] p : problems) {
+                     // p[0] = alp_req
+                     // p[1] = cop_req
+                     // p[2] = alp_rwd
+                     // p[3] = cop_rwd
+                     // p[4] = cost
+                     
+                     // 요구 수치를 둘다 넘으면
+                     if (i >= p[0] && j >= p[1]) {
+                         // 현재알고력 + 문제를 풀어서 얻는 알고력 > 목표 알고력이고
+                         // 현재코딩력 + 문제를 풀어서 얻는 코딩력 > 목표 코딩력인 경우
+                         if (i + p[2] > goal_alp && j + p[3] > goal_cop) {
+                             // 둘 다 증가하지 않음
+                             dp[goal_alp][goal_cop] = Math.min(dp[goal_alp][goal_cop], dp[i][j] + p[4]);
+                         }
+                         // 알고력만 넘어가는 경우
+                         else if (i + p[2] > goal_alp) {
+                             // 코딩력만 증가
+                             dp[goal_alp][j + p[3]] = Math.min(dp[goal_alp][j + p[3]], dp[i][j] + p[4]);
+                         }
+                         // 코딩력만 넘어가는 경우
+                         else if (j + p[3] > goal_cop) {
+                             // 알고력만 증가
+                             dp[i + p[2]][goal_cop] = Math.min(dp[i + p[2]][goal_cop], dp[i][j] + p[4]);
+                         }
+                         // 둘 다 넘지 못하는 경우
+                         else if (i + p[2] <= goal_alp && j + p[3] <= goal_cop) {
+                             // 넘지못하면 둘 다 증가를 시켜도 됨
+                             dp[i + p[2]][j + p[3]] = Math.min(dp[i + p[2]][j + p[3]], dp[i][j] + p[4]); 
+                         }
+                     }
+                 }
+             }
+        }
+        return dp[goal_alp][goal_cop];
+    }
+}
